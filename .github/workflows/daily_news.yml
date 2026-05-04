@@ -1,0 +1,32 @@
+name: Daily Security News Bot
+
+on:
+  schedule:
+    # GitHub Actions는 UTC 시간을 사용합니다. 
+    # 한국 시간(KST) 오전 08:30은 UTC 기준 전날 23:30입니다.
+    - cron: '30 23 * * *'
+  workflow_dispatch: # 우리가 필요할 때 언제든 수동으로 실행할 수 있는 버튼입니다.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run News Bot
+        # 여기서 우리가 설정할 Secrets 값들을 로봇에게 전달합니다.
+        env:
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_RECEIVER: ${{ secrets.EMAIL_RECEIVER }}
+        run: python news_bot.py
